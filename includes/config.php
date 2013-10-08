@@ -7,7 +7,7 @@ ini_set('memory_limit','256M');
 include('functions.php');
 
 //load classes
-include('streaks.class.php');
+include('nhl_streaks.class.php');
 include('simple-html-dom.class.php');
 
 //define constants

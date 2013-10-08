@@ -2,6 +2,12 @@
 
 include('includes/config.php');
 
+$streaks = new NHL_Streaks();
+
+if($_GET['action'] == 'update')
+$streaks->update();
+
+
 ?>
 <html>
 <head>
@@ -9,10 +15,10 @@ include('includes/config.php');
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-	<script src="<?=URI_JS;?>/nhl-streaks.js"></script>
+	<script src="./assets/js/nhl-streaks.js"></script>
 
-	<link rel="stylesheet" href='<?=URI_CSS;?>/dark-hive/jquery-ui-1.10.3.custom.min.css' type='text/css' media='all' />
-	<link rel="stylesheet" href='<?=URI_CSS;?>/nhl-streaks.css' type='text/css' media='all' />
+	<link rel="stylesheet" href='./assets/css/dark-hive/jquery-ui-1.10.3.custom.min.css' type='text/css' media='all' />
+	<link rel="stylesheet" href='./assets/css/nhl-streaks.css' type='text/css' media='all' />
 
 </head>
 <style type="text/css">
@@ -23,11 +29,12 @@ include('includes/config.php');
 
 	<h1>Actions</h1>
 	<ul>
-		<li><a href="?ajax=true&action=update">Update Data</a></li>
+		<li><a href="?ajax=true&action=update">Update Data</a> (last update on <?=$streaks->last_update;?>)</li>
 		<li><a href="?ajax=true&action=view">View</a></li>
 	</ul>
 
-	<div id="result">
+	<div id="results">
+<pre><?php if($_GET['action'] == 'view' || $_GET['action'] == 'update') print_r($streaks->content); ?></pre>
 
 	</div>
 
