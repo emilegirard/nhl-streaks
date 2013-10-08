@@ -1,0 +1,8 @@
+body {
+		background-color:#efefef;
+		font-size:100%;
+		font-family:'courier new', courier, arial;
+		width:100%;
+		text-align:center;
+}
+ul, li { display:block; list-style-type:none; padding:0; margin:0;}
