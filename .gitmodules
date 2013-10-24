@@ -1,0 +1,3 @@
+[submodule "nhl-streaks"]
+	path = nhl-streaks
+	url = git://github.com/emilegirard/nhl-streaks.git
