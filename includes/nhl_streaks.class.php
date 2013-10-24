@@ -91,6 +91,10 @@ class NHL_Streaks {
 			$this->content[$site['type']][$site['source']] = $content;
 		}
 
+		//get power ranking averages
+		$this->power_ranking_averages('average_w');
+
+		//output
 		return $this->content;
 	}
 
@@ -154,7 +158,7 @@ class NHL_Streaks {
     				);
     		$tmp['pos_diff'] = (-1) * ($tmp['pos_w'] - $tmp['pos_lw']);
     		if($tmp['pos_diff'] > 0) $tmp['pos_diff'] = '+' . $tmp['pos_diff'];
-    		$out['content'][] = $tmp;
+    		$out['content'][$tmp['team_abbr']] = $tmp;
     	}
 
 		return $out;
@@ -198,9 +202,82 @@ class NHL_Streaks {
     		if($tmp['pos_lw'] == 'NR') $tmp['pos_lw'] = $tmp['pos_w'];
     		$tmp['pos_diff'] = (-1) * ($tmp['pos_w'] - $tmp['pos_lw']);
     		if($tmp['pos_diff'] > 0) $tmp['pos_diff'] = '+' . $tmp['pos_diff'];
-    		$out['content'][] = $tmp;
+    		$out['content'][$tmp['team_abbr']] = $tmp;
     	}
 		return $out;
 	}
+
+
+	public function power_ranking_averages($order = 'alpha')
+	{
+		if( ! array_key_exists('power_rankings', $this->content)) return;
+		$pr = $this->content['power_rankings'];
+		$out = array();
+
+		//create array output structure
+		$teams = nhl_teams_abbr_array();
+		foreach($teams as $team_abbr=>$team_name) {
+			$out[$team_abbr] = array('team_abbr'=>$team_abbr, 'team_name'=>$team_name);
+		}
+
+		//parse power rankings
+		foreach($pr as $source=>$power) {
+			$date = $power['date'];
+			$url = $power['url'];
+			foreach($power['content'] as $i=>$team) {
+				$tmp = array_merge(array('date'=>$date, 'url'=>$url), $team);
+				$out[$team['team_abbr']]['sources'][$source] = $tmp;
+			}
+		}
+
+		//generate averages and merge comments
+		$total_sources = sizeof($pr);
+		foreach($out as $team=>$data) {
+			$pos_w_count = 0;
+			$pos_lw_count = 0;
+			$comments = '';
+			foreach($data['sources'] as $src=>$val) {
+				$pos_w_count += $val['pos_w'];
+				$pos_lw_count += $val['pos_lw'];
+				$comments .= $val['comments'].' ';
+			}
+			$out[$team]['comments'] = $comments;
+			$out[$team]['average_w'] = $pos_w_count / 2;
+			$out[$team]['average_lw'] = $pos_lw_count / 2;
+			$out[$team]['average_diff'] = (-1) * ($out[$team]['average_w'] - $out[$team]['average_lw']);
+			if($out[$team]['average_diff'] > 0) $out[$team]['average_diff'] = '+'.$out[$team]['average_diff'];
+		}
+
+		//order by agerage
+		if($order == 'average_w' || $order == 'average_lw') {
+			$this->aasort($out, $order);
+		}
+
+		//save content in obj + output
+		$this->content['power_rankings']['averages'] = $out;
+		return $out;
+	}
+
+	/**
+	 * sort a multi-dimentional array with a key in values
+	 *
+	 * @param $array ref array()
+	 * @param $key key in values used a the sorter
+	*/
+	private function aasort(&$array, $key)
+	{
+	    $sorter=array();
+	    $ret=array();
+	    reset($array);
+	    foreach ($array as $ii => $va) {
+	        $sorter[$ii]=$va[$key];
+	    }
+	    asort($sorter);
+	    foreach ($sorter as $ii => $va) {
+	        $ret[$ii]=$array[$ii];
+	    }
+	    $array=$ret;
+	}
+
 
 }
