@@ -114,6 +114,16 @@ function nhl_teams_abbr_array()
 	return $teams;
 }
 
+function cbs_match_abbr($abbr)
+{
+	if($abbr == 'pho') $abbr = 'phx';
+	if($abbr == 'nsh') $abbr = 'nas';
+	if($abbr == 'wpg') $abbr = 'win';
+	if($abbr == 'fla') $abbr = 'flo';
+	if($abbr == 'nj') $abbr = 'njd';
+	return $abbr;
+}
+
 function diff_class_color($diff)
 {
 	$class = "neutral";

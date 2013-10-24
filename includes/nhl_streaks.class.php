@@ -14,6 +14,12 @@ class NHL_Streaks {
 							'type'		=>'power_rankings',
 							'source'	=> 'espn',
 							'callback'	=>'espn_power_rankings'
+						),
+						array(
+							'url'		=>'http://www.cbssports.com/data/powerrankings/raw/NHL',
+							'type'		=>'power_rankings',
+							'source'	=> 'cbs',
+							'callback'	=>'cbs_power_rankings'
 						)
 
 					);
@@ -207,6 +213,42 @@ class NHL_Streaks {
 		return $out;
 	}
 
+	/**
+	 * extract power rankings from CBS
+	 *
+	 * @param $site Array Contains url, type, source and callback keys
+	 * @return array power rankings
+	*/
+	private function callback_cbs_power_rankings($site)
+	{
+
+		$html = file_get_contents($site['url']);
+		$html = substr($html, 0, strpos($html, '<!-'));
+		$html = json_decode($html);
+
+    	$out = array(
+    			'date'=>date('Y-m-d'),
+    			'url'=>$site['url'],
+    			'content'=>array()
+    		);
+
+    	foreach($html->powerrankings->team as $i=>$team)
+    	{
+    		$tmp = array(
+    					'pos_w'=>$team->rank,
+    					'pos_lw'=>$team->previous_rank,
+    					'team_name'=>$team->location . ' ' . $team->nickname,
+    					'team_abbr'=>cbs_match_abbr(strtolower($team->abbr)),
+    					'team_record'=>'',
+    					'comments'=>$team->content
+    				);
+    		$tmp['pos_diff'] = (-1) * ($tmp['pos_w'] - $tmp['pos_lw']);
+    		if($tmp['pos_diff'] > 0) $tmp['pos_diff'] = '+' . $tmp['pos_diff'];
+    		$out['content'][$tmp['team_abbr']] = $tmp;
+    	}
+		return $out;
+	}
+
 
 	public function power_ranking_averages($order = 'alpha')
 	{
@@ -239,7 +281,8 @@ class NHL_Streaks {
 			foreach($data['sources'] as $src=>$val) {
 				$pos_w_count += $val['pos_w'];
 				$pos_lw_count += $val['pos_lw'];
-				$comments .= $val['comments'].' ';
+				if(strlen($val['comments']) > 0)
+					$comments .= '<p>' . $val['comments'].' <span class="src">[' . $src.']</span></p>';
 			}
 			$out[$team]['comments'] = $comments;
 			$out[$team]['average_w'] = $pos_w_count / 2;

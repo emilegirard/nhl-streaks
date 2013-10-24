@@ -74,6 +74,10 @@ $streaks->update();
 			table td.source span.variation.down {
 				color:#ff0000;
 			}
+		table td.comments .src {
+			color:#ccc;
+			font-style:italic;
+			}
 
 </style>
 <body>
@@ -101,6 +105,10 @@ $streaks->update();
 						<a href="<?=$streaks->content['power_rankings']['espn']['url'];?>" target="_blank">ESPN</a><br />
 						<span class="date"><?=$streaks->content['power_rankings']['espn']['date'];?></span>
 					</th>
+					<th class="source">
+						<a href="<?=$streaks->content['power_rankings']['cbs']['url'];?>" target="_blank">CBS</a><br />
+						<span class="date"><?=$streaks->content['power_rankings']['cbs']['date'];?></span>
+					</th>
 					<th class="comments">Comments</th>
 				</tr>
 			</thead>
@@ -116,6 +124,7 @@ $streaks->update();
 							<td class="team_name"><?=$team['team_name'];?></td>
 							<td class="source"><?=$team['sources']['tsn']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['tsn']['pos_diff']);?>"><?=$team['sources']['tsn']['pos_diff'];?></span></td>
 							<td class="source"><?=$team['sources']['espn']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['espn']['pos_diff']);?>"><?=$team['sources']['espn']['pos_diff'];?></span></td>
+							<td class="source"><?=$team['sources']['cbs']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['cbs']['pos_diff']);?>"><?=$team['sources']['cbs']['pos_diff'];?></span></td>
 							<td class="comments"><?=$team['comments'];?></td>
 						</tr>
 				<?php
