@@ -322,13 +322,19 @@ class NHL_Streaks {
 			$pos_w_count = 0;
 			$pos_lw_count = 0;
 			$comments = '';
+			$record = array('date'=>'', 'record'=>'');
 			foreach($data['sources'] as $src=>$val) {
 				$pos_w_count += $val['pos_w'];
 				$pos_lw_count += $val['pos_lw'];
+				if($val['date'] > $record['date'] && $val['team_record'] != '') {
+					$record['date'] = $val['date'];
+					$record['record'] = $val['team_record'];
+				}
 				if(strlen($val['comments']) > 0)
 					$comments .= '<p>' . $val['comments'].' <span class="src">[' . $src.']</span></p>';
 			}
 			$out[$team]['comments'] = $comments;
+			$out[$team]['team_record'] = $record['record'];
 			$out[$team]['average_w'] = $pos_w_count / 2;
 			$out[$team]['average_lw'] = $pos_lw_count / 2;
 			$out[$team]['average_diff'] = (-1) * ($out[$team]['average_w'] - $out[$team]['average_lw']);

@@ -56,11 +56,19 @@ $streaks->update();
 		padding:10px;
 		}
 		table td.pos {
-			font-size:190%;
+			font-size:210%;
+			font-weight:bold;
 		}
 		table td.team_name {
 			font-size:120%;
-		}
+			}
+			table td.team_name .record {
+				color:#999;
+				display:inline-block;
+				padding-left:10px;
+				margin-top:10px;
+				font-style:italic;
+			}
 		table td.source {
 			font-size:190%;
 			text-align:center;
@@ -96,7 +104,7 @@ $streaks->update();
 		<table cellspacing="0" cellpadding="0">
 			<thead>
 				<tr>
-					<th class="pos">Avg. Position</th>
+					<th class="pos">Pos</th>
 					<th class="team_name">Team Name</th>
 					<th class="source">
 						<a href="<?=$streaks->content['power_rankings']['tsn']['url'];?>" target="_blank">TSN</a><br />
@@ -125,7 +133,10 @@ $streaks->update();
 						?>
 						<tr class="<?=($i%2 === 0) ? 'odd' : ''; ?>">
 							<td rowspan="2" class="pos"><?php if($same_avg_counter < 1 || $i==1) echo $i;?></td>
-							<td rowspan="2" class="team_name"><?=$team['team_name'];?></td>
+							<td rowspan="2" class="team_name">
+								<?=$team['team_name'];?> <br />
+								<span class="record"><?=$team['team_record'];?></span>
+							</td>
 							<td class="source"><?=$team['sources']['tsn']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['tsn']['pos_diff']);?>"><?=$team['sources']['tsn']['pos_diff'];?></span></td>
 							<td class="source"><?=$team['sources']['espn']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['espn']['pos_diff']);?>"><?=$team['sources']['espn']['pos_diff'];?></span></td>
 							<td class="source"><?=$team['sources']['cbs']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['cbs']['pos_diff']);?>"><?=$team['sources']['cbs']['pos_diff'];?></span></td>
