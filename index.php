@@ -31,11 +31,10 @@ $streaks->update();
 	<h1>Actions</h1>
 	<ul>
 		<li><a href="?ajax=true&action=update">Update Data</a> (last update on <?=$streaks->last_update;?>)</li>
-		<li><a href="?ajax=true&action=view">View</a></li>
 	</ul>
 
 	<div id="results">
-<pre><?php if($_GET['action'] == 'view' || $_GET['action'] == 'update') print_r($streaks->content); ?></pre>
+<pre><?php print_r($streaks->content); ?></pre>
 
 	</div>
 

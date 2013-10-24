@@ -60,6 +60,7 @@ class NHL_Streaks {
 	public function update()
 	{
 		$this->fetch_content();
+		$this->get_content();
 	}
 
 
@@ -75,6 +76,11 @@ class NHL_Streaks {
 			//get schedule from cache
 	    	$file = PATH_CACHE . '/' . md5($site['url']) . '.html';
 
+	    	//cache is expired : update automatically
+	    	if( !file_exists($file) || (filemtime($file) + CACHE_EXPIRE) < time())
+	    		$this->update();
+
+	    	//load content
 	    	if(@file_exists($file)) {
 	    		$content = @file_get_contents($file);
 				$content = unserialize($content);
@@ -100,35 +106,21 @@ class NHL_Streaks {
 			//get schedule from cache
 	    	$file = PATH_CACHE . '/' . md5($site['url']) . '.html';
 
-	    	//cache is expired
-	    	if( !file_exists($file) || (filemtime($file) + CACHE_EXPIRE) < time())
-	    	{
-		    	$callback 		= 'callback_' . $site['callback'];
-		    	$content 		= $this->$callback($site);
-		    	$file_content 	= serialize($content);
+	    	$callback 		= 'callback_' . $site['callback'];
+	    	$content 		= $this->$callback($site);
+	    	$file_content 	= serialize($content);
 
-		    	//save to cahe
-				if (!$handle = fopen($file, 'w+'))
-				{
-					throw new Exception('Cannot open file ' . $file);
-				}
-			    if (fwrite($handle, $file_content) === FALSE)
-			    {
-			        throw new Exception("Cannot write to file ($file)");
-			    }
-			    $this->last_update = date('Y-m-d H:i:s');
-				fclose($handle);
-
-			//load from cache
-			} else
+	    	//save to cahe
+			if (!$handle = fopen($file, 'w+'))
 			{
-				$content = @file_get_contents($file);
-				$content = unserialize($content);
-				$this->last_update = date('Y-m-d H:i:s', filemtime($file));
+				throw new Exception('Cannot open file ' . $file);
 			}
-
-			//save to object
-			$this->content[$site['type']][$site['source']] = $content;
+		    if (fwrite($handle, $file_content) === FALSE)
+		    {
+		        throw new Exception("Cannot write to file ($file)");
+		    }
+		    $this->last_update = date('Y-m-d H:i:s');
+			fclose($handle);
 		}
 	}
 
