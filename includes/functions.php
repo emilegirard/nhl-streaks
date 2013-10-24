@@ -113,3 +113,11 @@ function nhl_teams_abbr_array()
 	asort($teams);
 	return $teams;
 }
+
+function diff_class_color($diff)
+{
+	$class = "neutral";
+	if($diff > 0) $class = "up";
+	if($diff < 0) $class = "down";
+	return $class;
+}

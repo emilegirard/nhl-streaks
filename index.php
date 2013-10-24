@@ -66,6 +66,13 @@ $streaks->update();
 			}
 			table td.source span.variation {
 				font-size:40%;
+				color:#666;
+			}
+			table td.source span.variation.up {
+				color:#00aa00;
+			}
+			table td.source span.variation.down {
+				color:#ff0000;
 			}
 
 </style>
@@ -107,8 +114,8 @@ $streaks->update();
 						<tr class="<?=($i%2 === 0) ? 'odd' : ''; ?>">
 							<td class="pos"><?php if($same_avg_counter < 1 || $i==1) echo $i;?></td>
 							<td class="team_name"><?=$team['team_name'];?></td>
-							<td class="source"><?=$team['sources']['tsn']['pos_w'];?> <span class="variation"><?=$team['sources']['tsn']['pos_diff'];?></span></td>
-							<td class="source"><?=$team['sources']['espn']['pos_w'];?> <span class="variation"><?=$team['sources']['espn']['pos_diff'];?></span></td>
+							<td class="source"><?=$team['sources']['tsn']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['tsn']['pos_diff']);?>"><?=$team['sources']['tsn']['pos_diff'];?></span></td>
+							<td class="source"><?=$team['sources']['espn']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['espn']['pos_diff']);?>"><?=$team['sources']['espn']['pos_diff'];?></span></td>
 							<td class="comments"><?=$team['comments'];?></td>
 						</tr>
 				<?php
