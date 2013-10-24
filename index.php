@@ -3,6 +3,7 @@
 include('includes/config.php');
 
 $streaks = new NHL_Streaks();
+$streaks->current_season = '2013-2014';
 
 if($_GET['action'] == 'update')
 $streaks->update();

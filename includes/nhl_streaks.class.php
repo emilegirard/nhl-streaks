@@ -8,8 +8,16 @@ class NHL_Streaks {
 							'type'		=>'power_rankings',
 							'source'	=> 'tsn',
 							'callback'	=>'tsn_power_rankings'
+						),
+						array(
+							'url'		=>'http://espn.go.com/nhl/powerrankings',
+							'type'		=>'power_rankings',
+							'source'	=> 'espn',
+							'callback'	=>'espn_power_rankings'
 						)
+
 					);
+	public $current_season = '2013-2014';
 	public $content = array();
 	public $last_update;
 
@@ -95,9 +103,8 @@ class NHL_Streaks {
 	    	//cache is expired
 	    	if( !file_exists($file) || (filemtime($file) + CACHE_EXPIRE) < time())
 	    	{
-		    	$html 			= file_get_contents($site['url']);
 		    	$callback 		= 'callback_' . $site['callback'];
-		    	$content 		= $this->$callback($html);
+		    	$content 		= $this->$callback($site);
 		    	$file_content 	= serialize($content);
 
 		    	//save to cahe
@@ -128,14 +135,20 @@ class NHL_Streaks {
 	/**
 	 * extract power rankings from TSN
 	 *
-	 * @param $html html content from TSN's url
+	 * @param $site Array Contains url, type, source and callback keys
 	 * @return array power rankings
 	*/
-	private function callback_tsn_power_rankings($html)
+	private function callback_tsn_power_rankings($site)
 	{
+
+		$html = file_get_contents($site['url']);
 		//clean HTML to exclude useless stuff and improve performance in creating DOM object
     	$dom = str_get_html($html);
-    	$out = array('date'=>date('Y-m-d', strtotime(str_replace('Updated: ', '', $dom->find('#tsnStats .noPad', 0)->plaintext))), 'content'=>array());
+    	$out = array(
+    			'date'=>date('Y-m-d', strtotime(str_replace('Updated: ', '', $dom->find('#tsnStats .noPad', 0)->plaintext))),
+    			'url'=>$site['url'],
+    			'content'=>array()
+    		);
 
     	foreach($dom->find('#tsnStats .tsnPowerRankings') as $line)
     	{
@@ -146,11 +159,53 @@ class NHL_Streaks {
     					'team_abbr'=>nhl_team_full_name_to_abbr($line->find('.teamName', 0)->plaintext),
     					'team_record'=>$line->find('.teamRecord', 0)->plaintext
     				);
-    		$tmp['pos_diff'] = $tmp['pos_w'] - $tmp['pos_lw'];
+    		$tmp['pos_diff'] = (-1) * ($tmp['pos_w'] - $tmp['pos_lw']);
     		if($tmp['pos_diff'] > 0) $tmp['pos_diff'] = '+' . $tmp['pos_diff'];
     		$out['content'][] = $tmp;
     	}
 
+		return $out;
+	}
+
+
+	/**
+	 * extract power rankings from ESPN
+	 *
+	 * @param $site Array Contains url, type, source and callback keys
+	 * @return array power rankings
+	*/
+	private function callback_espn_power_rankings($site)
+	{
+
+		$html = file_get_contents($site['url']);
+		//clean HTML to exclude useless stuff and improve performance in creating DOM object
+    	$dom = str_get_html($html);
+    	$d = explode(',', str_replace('Updated: ', '', $dom->find('.mod-article-title .datehead', 0)->plaintext));
+    	$out = array(
+    			'date'=>date('Y-m-d', strtotime($d[0].','.$d[1])),
+    			'url'=>$site['url'],
+    			'content'=>array()
+    		);
+
+    	foreach($dom->find('.mod-container .mod-content table tr') as $line)
+    	{
+    		if($line->class == 'stathead' || $line->class == 'colhead' || $line->class == '') continue;
+    		$team_li = @$line->find('td', 1)->plaintext;
+    		$team_name = trim(preg_replace('/[0-9]+\-[0-9]+\-[0-9]+/is', '', $team_li));
+    		if($team_name == 'New York' && strpos(@$line->find('td', 1)->outertext, 'islanders') > 0) $team_name .= ' Islanders';
+    		if($team_name == 'New York' && strpos(@$line->find('td', 1)->outertext, 'rangers') > 0) $team_name .= ' Rangers';
+    		$tmp = array(
+    					'pos_w'=>@$line->find('.pr-rank', 0)->plaintext,
+    					'pos_lw'=>trim(str_replace('Last Week: ', '', @$line->find('.pr-last', 0)->plaintext)),
+    					'team_name'=>$team_name,
+    					'team_abbr'=>nhl_team_cities_to_abbr($team_name),
+    					'team_record'=>@$line->find('.pr-record', 0)->plaintext
+    				);
+    		if($tmp['pos_lw'] == 'NR') $tmp['pos_lw'] = $tmp['pos_w'];
+    		$tmp['pos_diff'] = (-1) * ($tmp['pos_w'] - $tmp['pos_lw']);
+    		if($tmp['pos_diff'] > 0) $tmp['pos_diff'] = '+' . $tmp['pos_diff'];
+    		$out['content'][] = $tmp;
+    	}
 		return $out;
 	}
 
