@@ -124,6 +124,13 @@ function cbs_match_abbr($abbr)
 	return $abbr;
 }
 
+function oddsshark_match_city($city)
+{
+	if($city == 'NY Rangers') $city = 'new york rangers';
+	if($city == 'NY Islanders') $city = 'new york islanders';
+	return $city;
+}
+
 function diff_class_color($diff)
 {
 	$class = "neutral";

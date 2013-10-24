@@ -20,6 +20,12 @@ class NHL_Streaks {
 							'type'		=>'power_rankings',
 							'source'	=> 'cbs',
 							'callback'	=>'cbs_power_rankings'
+						),
+						array(
+							'url'		=>'http://www.oddsshark.com/nhl/power-rankings',
+							'type'		=>'power_rankings',
+							'source'	=> 'oddsshark',
+							'callback'	=>'oddsshark_power_rankings'
 						)
 
 					);
@@ -248,6 +254,44 @@ class NHL_Streaks {
     	}
 		return $out;
 	}
+
+	/**
+	 * extract power rankings from oddsshark
+	 *
+	 * @param $site Array Contains url, type, source and callback keys
+	 * @return array power rankings
+	*/
+	private function callback_oddsshark_power_rankings($site)
+	{
+
+		$html = file_get_contents($site['url']);
+		//clean HTML to exclude useless stuff and improve performance in creating DOM object
+    	$dom = str_get_html($html);
+    	$out = array(
+    			'date'=>date('Y-m-d'),
+    			'url'=>$site['url'],
+    			'content'=>array()
+    		);
+    	foreach($dom->find('table tr.sport_data') as $line)
+    	{
+    		$oddsshark_city = oddsshark_match_city(trim(@$line->find('td', 0)->plaintext));
+    		$tmp = array(
+    					'pos_w'=>trim(@$line->find('td', 1)->plaintext),
+    					'pos_lw'=>trim(@$line->find('td', 2)->plaintext),
+    					'team_name'=>$oddsshark_city,
+    					'team_abbr'=>nhl_team_cities_to_abbr($oddsshark_city),
+    					'team_record'=>'',
+    					'comments'=>''
+    				);
+    		$tmp['pos_diff'] = (-1) * ($tmp['pos_w'] - $tmp['pos_lw']);
+    		if($tmp['pos_diff'] > 0) $tmp['pos_diff'] = '+' . $tmp['pos_diff'];
+    		$out['content'][$tmp['team_abbr']] = $tmp;
+    	}
+
+		return $out;
+	}
+
+
 
 
 	public function power_ranking_averages($order = 'alpha')

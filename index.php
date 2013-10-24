@@ -63,6 +63,7 @@ $streaks->update();
 		}
 		table td.source {
 			font-size:190%;
+			text-align:center;
 			}
 			table td.source span.variation {
 				font-size:40%;
@@ -109,7 +110,10 @@ $streaks->update();
 						<a href="<?=$streaks->content['power_rankings']['cbs']['url'];?>" target="_blank">CBS</a><br />
 						<span class="date"><?=$streaks->content['power_rankings']['cbs']['date'];?></span>
 					</th>
-					<th class="comments">Comments</th>
+					<th class="source">
+						<a href="<?=$streaks->content['power_rankings']['oddsshark']['url'];?>" target="_blank">Oddsshark</a><br />
+						<span class="date"><?=$streaks->content['power_rankings']['oddsshark']['date'];?></span>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -120,12 +124,18 @@ $streaks->update();
 						if($team['average_w'] == $cur_pos_avg) $same_avg_counter++; else $same_avg_counter=0;
 						?>
 						<tr class="<?=($i%2 === 0) ? 'odd' : ''; ?>">
-							<td class="pos"><?php if($same_avg_counter < 1 || $i==1) echo $i;?></td>
-							<td class="team_name"><?=$team['team_name'];?></td>
+							<td rowspan="2" class="pos"><?php if($same_avg_counter < 1 || $i==1) echo $i;?></td>
+							<td rowspan="2" class="team_name"><?=$team['team_name'];?></td>
 							<td class="source"><?=$team['sources']['tsn']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['tsn']['pos_diff']);?>"><?=$team['sources']['tsn']['pos_diff'];?></span></td>
 							<td class="source"><?=$team['sources']['espn']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['espn']['pos_diff']);?>"><?=$team['sources']['espn']['pos_diff'];?></span></td>
 							<td class="source"><?=$team['sources']['cbs']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['cbs']['pos_diff']);?>"><?=$team['sources']['cbs']['pos_diff'];?></span></td>
-							<td class="comments"><?=$team['comments'];?></td>
+							<td class="source"><?=$team['sources']['oddsshark']['pos_w'];?> <span class="variation <?=diff_class_color($team['sources']['oddsshark']['pos_diff']);?>"><?=$team['sources']['oddsshark']['pos_diff'];?></span></td>
+
+						</tr>
+						<tr class="<?=($i%2 === 0) ? 'odd' : ''; ?>">
+							<td colspan="4" class="comments">
+								<?=$team['comments'];?>
+							</td>
 						</tr>
 				<?php
 						$cur_pos_avg = $team['average_w'];
