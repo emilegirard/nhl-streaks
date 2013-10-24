@@ -157,7 +157,8 @@ class NHL_Streaks {
     					'pos_lw'=>$line->find('.lastWeekRank', 0)->plaintext,
     					'team_name'=>$line->find('.teamName', 0)->plaintext,
     					'team_abbr'=>nhl_team_full_name_to_abbr($line->find('.teamName', 0)->plaintext),
-    					'team_record'=>$line->find('.teamRecord', 0)->plaintext
+    					'team_record'=>$line->find('.teamRecord', 0)->plaintext,
+    					'comments'=>''
     				);
     		$tmp['pos_diff'] = (-1) * ($tmp['pos_w'] - $tmp['pos_lw']);
     		if($tmp['pos_diff'] > 0) $tmp['pos_diff'] = '+' . $tmp['pos_diff'];
@@ -199,7 +200,8 @@ class NHL_Streaks {
     					'pos_lw'=>trim(str_replace('Last Week: ', '', @$line->find('.pr-last', 0)->plaintext)),
     					'team_name'=>$team_name,
     					'team_abbr'=>nhl_team_cities_to_abbr($team_name),
-    					'team_record'=>@$line->find('.pr-record', 0)->plaintext
+    					'team_record'=>@$line->find('.pr-record', 0)->plaintext,
+    					'comments'=>@$line->find('td', 3)->plaintext
     				);
     		if($tmp['pos_lw'] == 'NR') $tmp['pos_lw'] = $tmp['pos_w'];
     		$tmp['pos_diff'] = (-1) * ($tmp['pos_w'] - $tmp['pos_lw']);
