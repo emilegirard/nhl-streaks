@@ -2,15 +2,17 @@
 
 //extand memory limit
 ini_set('memory_limit','512M');
-ini_set('max_execution_time','300');
-
+ini_set('max_execution_time','0');
 
 //load functions
 include('functions.php');
 
 //load classes
-include('nhl_streaks.class.php');
-include('simple-html-dom.class.php');
+if(!class_exists('NHL_Streaks'))
+	include('nhl_streaks.class.php');
+
+if(!class_exists('simple_html_dom_node'))
+	include('simple-html-dom.class.php');
 
 //define constants
 define('PATH', 			dirname(dirname (__FILE__)) );
