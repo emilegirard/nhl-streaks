@@ -5,7 +5,7 @@ include('includes/config.php');
 $streaks = new NHL_Streaks();
 $streaks->current_season = '2013-2014';
 
-if($_GET['action'] == 'update')
+if(isset($_GET['action']) && $_GET['action'] == 'update')
 $streaks->update();
 
 
@@ -126,7 +126,7 @@ $streaks->update();
 			</thead>
 			<tbody>
 				<?php
-					$i=1;
+					$i=1; $same_avg_counter = 0;
 					foreach($streaks->content['power_rankings']['averages'] as $team_abbr=>$team) :
 						if(!isset($cur_pos_avg)) $cur_pos_avg = $team['average_w'];
 						if($team['average_w'] == $cur_pos_avg) $same_avg_counter++; else $same_avg_counter=0;

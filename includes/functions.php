@@ -32,7 +32,10 @@ function nhl_team_full_name_to_abbr($team)
 		'colorado avalanche' => 'col',
 		'nashville predators' => 'nas',
 		'buffalo sabres' => 'buf',
-		'florida panthers' => 'flo'
+		'florida panthers' => 'flo',
+
+		'la kings'=>'la',
+		'st.louis blues'=>'stl'
 		);
 	return $teams[strtolower(trim($team))];
 }

@@ -21,14 +21,24 @@ class NHL_Streaks {
 							'source'	=> 'cbs',
 							'callback'	=>'cbs_power_rankings'
 						),
+
 						array(
 							'url'		=>'http://www.oddsshark.com/nhl/power-rankings',
 							'type'		=>'power_rankings',
 							'source'	=> 'oddsshark',
 							'callback'	=>'oddsshark_power_rankings'
+						),
+						/*
+						array(
+							'url'		=>'http://www.easports.com/nhl/news-updates-gameplay/article/ea-sports-nhl-power-rankings',
+							'type'		=>'power_rankings',
+							'source'	=> 'ea',
+							'callback'	=>'ea_power_rankings'
 						)
+						*/
 
 					);
+
 	public $current_season = '2013-2014';
 	public $content = array();
 	public $last_update;
@@ -68,11 +78,12 @@ class NHL_Streaks {
     /**
 	 * update data sources
 	 *
+	 * @param $sites array the site to fetch (if specific)
+	 *
 	*/
-	public function update()
+	public function update($sites = array())
 	{
-		$this->fetch_content();
-		$this->get_content();
+		$this->fetch_content($sites);
 	}
 
 
@@ -90,7 +101,7 @@ class NHL_Streaks {
 
 	    	//cache is expired : update automatically
 	    	if( !file_exists($file) || (filemtime($file) + CACHE_EXPIRE) < time())
-	    		$this->update();
+	    		$this->update(array($site));
 
 	    	//load content
 	    	if(@file_exists($file)) {
@@ -114,8 +125,12 @@ class NHL_Streaks {
 	 * fetch content from some sources
 	 *
 	*/
-	public function fetch_content()
+	public function fetch_content($to_do = array())
 	{
+
+		//fetch only a specific list of sources if specified
+		if($to_do != array() && is_array($to_do))
+			$this->sites = $to_do;
 
 		foreach($this->sites as $site)
 		{
@@ -123,7 +138,11 @@ class NHL_Streaks {
 	    	$file = PATH_CACHE . '/' . md5($site['url']) . '.html';
 
 	    	$callback 		= 'callback_' . $site['callback'];
-	    	$content 		= $this->$callback($site);
+	    	if(method_exists(&$this, $callback))
+	    		$content 		= $this->$callback($site);
+	    	else
+	    		$content = array_merge(array('error'=>'Callback Function doesnt exists.'), $site);
+
 	    	$file_content 	= serialize($content);
 
 	    	//save to cahe
@@ -256,6 +275,47 @@ class NHL_Streaks {
 	}
 
 	/**
+	 * extract power rankings from CBS
+	 *
+	 * @param $site Array Contains url, type, source and callback keys
+	 * @return array power rankings
+	*/
+	private function callback_ea_power_rankings($site)
+	{
+
+		$html = file_get_contents($site['url']);
+		//clean HTML to exclude useless stuff and improve performance in creating DOM object
+    	$dom = str_get_html($html);
+    	$date = $dom->find('.media-header p.cite', 0)->plaintext;
+    	$date = trim(str_replace(array("\n", "\r","\t",'By EA SPORTS Hockey'), '', $date));
+    	$out = array(
+    			'date'=>date('Y-m-d', strtotime($date)),
+    			'url'=>$site['url'],
+    			'content'=>array()
+    		);
+    	$count=0;
+    	foreach($dom->find('.media-copy p') as $team)
+    	{
+    		$img = $team->find('img', 0);
+    		if(!is_object($img)) continue;
+    		$team_name = $team->find('strong', 0)->plaintext;
+    		$team_name = trim(substr($team_name, (strpos($team_name, '.')+1), strlen($team_name)));
+    		$tmp = array(
+    					'pos_w'=>$count,
+    					'pos_lw'=>$count,
+    					'team_name'=>$team_name,
+    					'team_abbr'=>nhl_team_full_name_to_abbr($team_name),
+    					'team_record'=>'',
+    					'comments'=>''
+    				);
+    		$tmp['pos_diff'] = '';
+    		$out['content'][$tmp['team_abbr']] = $tmp;
+    		$count++;
+    	}
+		return $out;
+	}
+
+	/**
 	 * extract power rankings from oddsshark
 	 *
 	 * @param $site Array Contains url, type, source and callback keys
@@ -293,7 +353,6 @@ class NHL_Streaks {
 
 
 
-
 	public function power_ranking_averages($order = 'alpha')
 	{
 		if( ! array_key_exists('power_rankings', $this->content)) return;
@@ -308,11 +367,14 @@ class NHL_Streaks {
 
 		//parse power rankings
 		foreach($pr as $source=>$power) {
-			$date = $power['date'];
-			$url = $power['url'];
-			foreach($power['content'] as $i=>$team) {
-				$tmp = array_merge(array('date'=>$date, 'url'=>$url), $team);
-				$out[$team['team_abbr']]['sources'][$source] = $tmp;
+			if(isset($power['content']) && is_array($power['content']))
+			{
+				$date = $power['date'];
+				$url = $power['url'];
+				foreach($power['content'] as $i=>$team) {
+					$tmp = array_merge(array('date'=>$date, 'url'=>$url), $team);
+					$out[$team['team_abbr']]['sources'][$source] = $tmp;
+				}
 			}
 		}
 
@@ -331,7 +393,7 @@ class NHL_Streaks {
 					$record['record'] = $val['team_record'];
 				}
 				if(strlen($val['comments']) > 0)
-					$comments .= '<p>' . $val['comments'].' <span class="src">[' . $src.']</span></p>';
+					$comments .= '<p><span class="src">[' . $src.']</span> ' . $val['comments'].'</p>';
 			}
 			$out[$team]['comments'] = $comments;
 			$out[$team]['team_record'] = $record['record'];
