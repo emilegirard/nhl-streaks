@@ -171,6 +171,7 @@ class NHL_Streaks {
 		$html = file_get_contents($site['url']);
 		//clean HTML to exclude useless stuff and improve performance in creating DOM object
     	$dom = str_get_html($html);
+    	if(!is_object($dom)) return;
     	$out = array(
     			'date'=>date('Y-m-d', strtotime(str_replace('Updated: ', '', $dom->find('#tsnStats .noPad', 0)->plaintext))),
     			'url'=>$site['url'],
@@ -208,6 +209,7 @@ class NHL_Streaks {
 		$html = file_get_contents($site['url']);
 		//clean HTML to exclude useless stuff and improve performance in creating DOM object
     	$dom = str_get_html($html);
+    	if(!is_object($dom)) return;
     	$d = explode(',', str_replace('Updated: ', '', $dom->find('.mod-article-title .datehead', 0)->plaintext));
     	$out = array(
     			'date'=>date('Y-m-d', strtotime($d[0].','.$d[1])),
@@ -286,6 +288,7 @@ class NHL_Streaks {
 		$html = file_get_contents($site['url']);
 		//clean HTML to exclude useless stuff and improve performance in creating DOM object
     	$dom = str_get_html($html);
+    	if(!is_object($dom)) return;
     	$date = $dom->find('.media-header p.cite', 0)->plaintext;
     	$date = trim(str_replace(array("\n", "\r","\t",'By EA SPORTS Hockey'), '', $date));
     	$out = array(
@@ -327,6 +330,7 @@ class NHL_Streaks {
 		$html = file_get_contents($site['url']);
 		//clean HTML to exclude useless stuff and improve performance in creating DOM object
     	$dom = str_get_html($html);
+    	if(!is_object($dom)) return;
     	$out = array(
     			'date'=>date('Y-m-d'),
     			'url'=>$site['url'],
