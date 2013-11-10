@@ -15,15 +15,16 @@ if(!class_exists('simple_html_dom_node'))
 	include('simple-html-dom.class.php');
 
 //define constants
-define('PATH', 			dirname(dirname (__FILE__)) );
-define('PATH_CACHE', 	PATH . '/cache');
-define('PATH_INC',		PATH . '/includes');
-define('PATH_ASSETS',	PATH . '/assets');
-define('PATH_JS',		PATH_ASSETS . '/js');
-define('PATH_CSS',		PATH_ASSETS . '/css');
-define('CACHE_EXPIRE',	3600*24*5);
+define('NHL_STREAKS_PATH', 			dirname(dirname (__FILE__)) );
+define('NHL_STREAKS_PATH_INC',		NHL_STREAKS_PATH . '/includes');
+define('NHL_STREAKS_PATH_ASSETS',	NHL_STREAKS_PATH . '/assets');
+define('NHL_STREAKS_PATH_JS',		NHL_STREAKS_PATH_ASSETS . '/js');
+define('NHL_STREAKS_PATH_CSS',		NHL_STREAKS_PATH_ASSETS . '/css');
 
-define('URI',			'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-define('URI_ASSETS', 	URI . 'assets');
-define('URI_CSS', 		URI_ASSETS . '/css');
-define('URI_JS', 		URI_ASSETS . '/js');
+define('NHL_STREAKS_CACHE_PATH', 	NHL_STREAKS_PATH . '/cache');
+define('NHL_STREAKS_CACHE_EXPIRE',	3600*24*5);
+
+define('NHL_STREAKS_URI',			'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+define('NHL_STREAKS_ASSETS', 	NHL_STREAKS_URI . 'assets');
+define('NHL_STREAKS_URI_CSS', 		NHL_STREAKS_URI_ASSETS . '/css');
+define('NHL_STREAKS_URI_JS', 		NHL_STREAKS_URI_ASSETS . '/js');

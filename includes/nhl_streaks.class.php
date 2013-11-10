@@ -42,11 +42,20 @@ class NHL_Streaks {
 	public $current_season = '2013-2014';
 	public $content = array();
 	public $last_update;
+	public $cache_path;
+	public $cache_expire;
 
 	/**
 	 * Class constructor
 	*/
 	public function __construct()
+	{
+        $this->cache_path   = NHL_STREAKS_CACHE_PATH;
+        $this->cache_expire = NHL_STREAKS_CACHE_EXPIRE;
+
+	}
+
+	public function init()
 	{
 		$this->get_content();
 	}
@@ -97,10 +106,10 @@ class NHL_Streaks {
 		foreach($this->sites as $site)
 		{
 			//get schedule from cache
-	    	$file = PATH_CACHE . '/' . md5($site['url']) . '.html';
+	    	$file = $this->cache_path . '/' . md5($site['url']) . '.html';
 
 	    	//cache is expired : update automatically
-	    	if( !file_exists($file) || (filemtime($file) + CACHE_EXPIRE) < time())
+	    	if( !file_exists($file) || (filemtime($file) + $this->cache_expire) < time())
 	    		$this->update(array($site));
 
 	    	//load content
@@ -135,7 +144,7 @@ class NHL_Streaks {
 		foreach($this->sites as $site)
 		{
 			//get schedule from cache
-	    	$file = PATH_CACHE . '/' . md5($site['url']) . '.html';
+	    	$file = $this->cache_path . '/' . md5($site['url']) . '.html';
 
 	    	$callback 		= 'callback_' . $site['callback'];
 	    	if(method_exists(&$this, $callback))
